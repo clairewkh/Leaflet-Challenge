@@ -2,7 +2,6 @@
 var allQuakes = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
 
 //Grabbing data from d3
-// Perform a GET request to the query URL
 d3.json(allQuakes, function(data) {
     // Once we get a response, send the data.features object to the createFeatures function
     createFeatures(data.features);
@@ -17,8 +16,7 @@ d3.json(allQuakes, function(data) {
         "</h3><hr><p>" + new Date(feature.properties.time) + "</p>");
     }
   
-    // Create a GeoJSON layer containing the features array on the earthquakeData object
-    // Run the onEachFeature function once for each piece of data in the array
+    //If-else statement for color coding makers
     var earthquakes = L.geoJSON(earthquakeData, {
       onEachFeature: onEachFeature,
       pointToLayer: function(feature, latlng){
@@ -52,14 +50,14 @@ d3.json(allQuakes, function(data) {
       }
     });
   
-    // Sending our earthquakes layer to the createMap function
+    //earthquakes layer to the createMap function
     createMap(earthquakes);
   }
   
 
 function createMap(earthquakes) {
 
-    // Define streetmap and darkmap layers
+    // Getting all the needed maps
     var streetmap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
       attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
       tileSize: 512,
@@ -76,18 +74,18 @@ function createMap(earthquakes) {
       accessToken: API_KEY
     });
   
-    // Define a baseMaps object to hold our base layers
+    // Base Maps Object
     var baseMaps = {
       "Street Map": streetmap,
       "Dark Map": darkmap
     };
   
-    // Create overlay object to hold our overlay layer
+    // Overlay object 
     var overlayMaps = {
       Earthquakes: earthquakes
     };
   
-    // Create our map, giving it the streetmap and earthquakes layers to display on load
+    // Create our map
     var myMap = L.map("map", {
       center: [
         37.09, -95.71
@@ -96,27 +94,26 @@ function createMap(earthquakes) {
       layers: [streetmap, earthquakes]
     });
   
-    // Create a layer control
-    // Pass in our baseMaps and overlayMaps
     // Add the layer control to the map
     L.control.layers(baseMaps, overlayMaps, {
       collapsed: false
     }).addTo(myMap);
 
+    //Adding Legend
     var legend = L.control({position: "bottomright"});
     legend.onAdd = function(map){
         var div = L.DomUtil.create('div', 'info legend');
-        grades = [0, 1, 2, 3, 4, 5];
+        mag_levels = [0, 1, 2, 3, 4, 5];
 
-    //Legend Label Earthquake <break> Magnitude  
+    
     div.innerHTML = 'Eathquake<br>Magnitude<br><hr>'
 
-    // loop through our density intervals and generate a label with a colored square for each interval
-    for (var i = 0; i < grades.length; i++) {
+    
+    for (var i = 0; i < mag_levels.length; i++) {
       div.innerHTML +=
-        //HTML code with nbs(non-breaking space) and ndash
-        '<i style="background:' + legend_col(grades[i] + 1) + '">&nbsp&nbsp&nbsp&nbsp</i> ' +
-        grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+       
+        '<i style="background:' + legend_col(mag_levels[i] + 1) + '">&nbsp&nbsp&nbsp&nbsp</i> ' +
+        mag_levels[i] + (mag_levels[i + 1] ? '&ndash;' + mag_levels[i + 1] + '<br>' : '+');
     }
 
         return div;
@@ -126,6 +123,7 @@ function createMap(earthquakes) {
 
     }
   
+    //Function for legend color coding
   function legend_col(magnitude){
     switch (true) {
         case magnitude < 1:
